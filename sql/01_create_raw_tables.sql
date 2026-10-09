@@ -2,11 +2,13 @@
 -- Empty tables for the 8 Kaggle CSVs, loaded as-is (no cleaning here).
 -- Everything raw lives in its own "raw" schema; cleaned views will go in "clean" later.
 -- Column names are lowercase versions of the CSV headers.
+-- CASCADE also drops my clean views that depend on these tables, so after reloading
+-- I rerun sql/04_clean_views.sql to rebuild them.
 
 CREATE SCHEMA IF NOT EXISTS raw;
 
 -- One row = one product on one shopping trip
-DROP TABLE IF EXISTS raw.transaction_data;
+DROP TABLE IF EXISTS raw.transaction_data CASCADE;
 CREATE TABLE raw.transaction_data (
     household_key      INTEGER,
     basket_id          BIGINT,
@@ -23,7 +25,7 @@ CREATE TABLE raw.transaction_data (
 );
 
 -- One row = one product
-DROP TABLE IF EXISTS raw.product;
+DROP TABLE IF EXISTS raw.product CASCADE;
 CREATE TABLE raw.product (
     product_id            BIGINT,
     manufacturer          INTEGER,
@@ -35,7 +37,7 @@ CREATE TABLE raw.product (
 );
 
 -- One row = one household (only 801 of the 2,500 have this)
-DROP TABLE IF EXISTS raw.hh_demographic;
+DROP TABLE IF EXISTS raw.hh_demographic CASCADE;
 CREATE TABLE raw.hh_demographic (
     age_desc             TEXT,
     marital_status_code  TEXT,
@@ -48,7 +50,7 @@ CREATE TABLE raw.hh_demographic (
 );
 
 -- One row = one household targeted by one campaign
-DROP TABLE IF EXISTS raw.campaign_table;
+DROP TABLE IF EXISTS raw.campaign_table CASCADE;
 CREATE TABLE raw.campaign_table (
     description    TEXT,                 -- TypeA / TypeB / TypeC
     household_key  INTEGER,
@@ -56,7 +58,7 @@ CREATE TABLE raw.campaign_table (
 );
 
 -- One row = one campaign, with its start and end day
-DROP TABLE IF EXISTS raw.campaign_desc;
+DROP TABLE IF EXISTS raw.campaign_desc CASCADE;
 CREATE TABLE raw.campaign_desc (
     description  TEXT,
     campaign     INTEGER,
@@ -65,7 +67,7 @@ CREATE TABLE raw.campaign_desc (
 );
 
 -- One row = one product covered by one coupon in one campaign
-DROP TABLE IF EXISTS raw.coupon;
+DROP TABLE IF EXISTS raw.coupon CASCADE;
 CREATE TABLE raw.coupon (
     coupon_upc  BIGINT,
     product_id  BIGINT,
@@ -73,7 +75,7 @@ CREATE TABLE raw.coupon (
 );
 
 -- One row = one coupon redeemed by one household on one day
-DROP TABLE IF EXISTS raw.coupon_redempt;
+DROP TABLE IF EXISTS raw.coupon_redempt CASCADE;
 CREATE TABLE raw.coupon_redempt (
     household_key  INTEGER,
     day            INTEGER,
@@ -82,7 +84,7 @@ CREATE TABLE raw.coupon_redempt (
 );
 
 -- One row = one product in one store in one week, with its display and mailer placement
-DROP TABLE IF EXISTS raw.causal_data;
+DROP TABLE IF EXISTS raw.causal_data CASCADE;
 CREATE TABLE raw.causal_data (
     product_id  BIGINT,
     store_id    INTEGER,

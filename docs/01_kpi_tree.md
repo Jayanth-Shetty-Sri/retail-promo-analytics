@@ -1,8 +1,8 @@
 # KPI tree
 
-Every number in this project rolls up to one of two trees. The **sales tree** shows where sales come from. The **promotion tree** shows whether promotions actually created any of them.
+I tie every number in this project back to one of two trees. The **sales tree** shows where sales come from. The **promotion tree** shows whether promotions actually created any of them.
 
-Numbers are two-year totals from the raw data (see `notebooks/00_quick_look.ipynb`). They get rechecked after cleaning.
+The numbers are two-year totals I pulled from the raw data in `notebooks/00_quick_look.ipynb`. I'll recheck them after cleaning.
 
 ## Sales tree
 
@@ -27,6 +27,8 @@ flowchart TD
 ```
 
 **Check:** 2,500 × 110.6 × $29.14 = **$8.06M**. Because the tree multiplies out exactly, any change in sales can be split into more customers, more visits or bigger baskets.
+
+**After cleaning** (fuel and non-product lines removed, see the Process section of the README), the same tree reads **2,500 households × 100.4 trips × $29.40 per trip = $7.38M**. I use $8.06M for total store sales and $7.38M for everything in the analysis.
 
 ## Promotion tree
 
@@ -94,7 +96,7 @@ flowchart TD
 
 ## Data notes to carry into Prepare and Process
 
-- Discounts are stored as negative numbers, but `retail_disc` has a few positive values (max +3.99). Check these during cleaning.
+- Discounts are stored as negative numbers, but `retail_disc` has a few positive values (max +3.99). I'll check these during cleaning.
 - No real dates: only `day` (1–711) and `week_no` (1–102).
 - Column names mix upper and lower case across files; I lowercase them on load.
-- `causal_data.csv` (displays and mailers) is about 700 MB, so it gets loaded straight into PostgreSQL rather than opened in Excel.
+- `causal_data.csv` (displays and mailers) is about 700 MB, so I loaded it straight into PostgreSQL rather than opening it in Excel.
