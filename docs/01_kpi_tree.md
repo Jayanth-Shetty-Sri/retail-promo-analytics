@@ -97,4 +97,4 @@ flowchart TD
 - Discounts are stored as negative numbers, but `retail_disc` has a few positive values (max +3.99). Check these during cleaning.
 - No real dates: only `day` (1–711) and `week_no` (1–102).
 - Column names mix upper and lower case across files; I lowercase them on load.
-- `causal_data.csv` (displays and mailers) is about 700 MB, so it gets loaded straight into BigQuery rather than opened in Excel.
+- `causal_data.csv` (displays and mailers) is about 700 MB, so it gets loaded straight into PostgreSQL rather than opened in Excel.
