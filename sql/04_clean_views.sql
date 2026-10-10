@@ -1,11 +1,7 @@
 -- 04_clean_views.sql
 -- My clean layer. Everything I analyse from here on reads from the "clean" schema,
 -- never straight from "raw". Each cleaning rule below matches a line in my cleaning log.
---
--- Run the WHOLE file in pgAdmin (open it, press F5 with nothing highlighted).
--- Takes a few minutes the first time because of the 36M-row promotions table.
--- Safe to rerun: it wipes the clean schema and rebuilds it.
---
+
 -- A VIEW is a saved query - it reruns every time I use it, so it never takes up space.
 -- A MATERIALIZED VIEW saves the result as a table - faster to query, but I have to
 -- rebuild it (rerun this file) if the raw data changes. I use materialized views for
@@ -20,7 +16,7 @@ CREATE INDEX IF NOT EXISTS idx_tx_basket            ON raw.transaction_data (bas
 CREATE INDEX IF NOT EXISTS idx_causal_key           ON raw.causal_data (product_id, store_id, week_no);
 
 
--- 1. TRANSACTIONS -------------------------------------------------------------
+-- 1. TRANSACTIONS
 -- One row = one product bought on one trip, merchandise only.
 -- Rules: drop fuel and non-product departments, drop lines where nothing was sold
 -- or nothing was paid, turn discounts into positive dollar amounts (the 10 rows
@@ -50,7 +46,7 @@ WHERE TRIM(COALESCE(p.department, '')) NOT IN ('', 'KIOSK-GAS', 'MISC SALES TRAN
   AND t.sales_value > 0;
 
 
--- 2. PROMOTIONS ---------------------------------------------------------------
+-- 2. PROMOTIONS
 -- One row = one product in one store in one week.
 -- Rule: 15,245 product-store-weeks have two different placement records. I keep one
 -- row each; if either record says display or mailer, I count it as promoted.
@@ -102,7 +98,7 @@ GROUP BY t.product_id, t.store_id, t.week_no, t.department, t.commodity_desc, t.
 CREATE INDEX ON clean.weekly_product_store_sales (product_id, store_id, week_no);
 
 
--- 4. WEEKLY SALES BY CATEGORY ------------------------------------------------
+-- 4. WEEKLY SALES BY CATEGORY
 -- One row = one category (commodity) in one week. Feeds the category page of the dashboard.
 CREATE MATERIALIZED VIEW clean.weekly_category_sales AS
 SELECT department,
@@ -117,7 +113,7 @@ FROM clean.transactions
 GROUP BY department, commodity_desc, week_no;
 
 
--- 5. BASKETS (one row per shopping trip) --------------------------------------
+-- 5. BASKETS (one row per shopping trip)
 CREATE MATERIALIZED VIEW clean.baskets AS
 SELECT basket_id,
        household_key,
@@ -135,7 +131,7 @@ GROUP BY basket_id, household_key, store_id, day, week_no;
 CREATE INDEX ON clean.baskets (household_key);
 
 
--- 6. HOUSEHOLDS (one row per household) ---------------------------------------
+-- 6. HOUSEHOLDS (one row per household)
 -- Shopping summary + campaigns received + coupons redeemed + demographics where known.
 CREATE MATERIALIZED VIEW clean.households AS
 WITH shop AS (
@@ -177,7 +173,7 @@ LEFT JOIN redeem r ON r.household_key = s.household_key
 LEFT JOIN raw.hh_demographic d ON d.household_key = s.household_key;
 
 
--- 7. COUPONS (duplicates removed) and CAMPAIGNS ---------------------------------
+-- 7. COUPONS (duplicates removed) and CAMPAIGNS
 CREATE VIEW clean.coupons AS
 SELECT DISTINCT coupon_upc, product_id, campaign
 FROM raw.coupon;
@@ -194,7 +190,7 @@ LEFT JOIN raw.campaign_table t ON t.campaign = d.campaign
 GROUP BY d.campaign, d.description, d.start_day, d.end_day;
 
 
--- 8. CHECK: how much did cleaning remove? (this is the result pgAdmin shows) -----
+-- 8. CHECK: how much did cleaning remove?
 SELECT '1. raw transactions'   AS layer, COUNT(*) AS rows, ROUND(SUM(sales_value)) AS sales,
        COUNT(DISTINCT basket_id) AS baskets, COUNT(DISTINCT household_key) AS households
 FROM raw.transaction_data

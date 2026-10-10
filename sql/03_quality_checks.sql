@@ -1,8 +1,6 @@
 -- 03_quality_checks.sql
 -- I'm checking the raw tables for problems before building anything on top of them:
 -- nulls, duplicates, negative values, outliers, odd days and products with no category.
--- Each result feeds a line in my cleaning log.
--- In pgAdmin: highlight ONE query and press F5.
 
 
 -- QUERY 1: the overview. One row per check.
@@ -62,7 +60,7 @@ SELECT 'E4. campaigns where end_day is before start_day',
 
 -- QUERY 2: the 15,245 repeated rows in causal_data.
 -- Are they exact copies (easy to drop) or the same product-store-week with
--- two different placements (needs a rule)? Takes 1-2 minutes.
+-- two different placements (needs a rule)?
 SELECT COUNT(*) FILTER (WHERE n_rows > 1)                     AS keys_with_repeats,
        COUNT(*) FILTER (WHERE n_rows > 1 AND n_versions = 1)  AS exact_copies,
        COUNT(*) FILTER (WHERE n_versions > 1)                 AS conflicting_placements
